@@ -23,4 +23,6 @@ jobs:
         continue-on-error: true
         with-check-status: true
         with-check-step-success: true
-        output: keep-running-log
+    steps:
+      - name: Retrieve and log comments
+        run: echo "Extracting comments for the Project board"
