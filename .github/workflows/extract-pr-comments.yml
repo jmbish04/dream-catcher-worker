@@ -1,10 +1,10 @@
 name: Extract PR Comments to GitHub Project
-on: pull_request
-permissions:
-  pr:
+on:
+  pull_request:
     types: []
+  workflow_dispatch:
 
-explorers:
+ explorers:
   raw: github-headless
   node: comment-collector
 
