@@ -63,7 +63,7 @@ jobs:
           )
 
           # Use the GitHub CLI to create the issue. This command is now on a single line for robustness.
-          ISSUE_URL=$(gh issue create --title "$ISSUE_TITLE" --body "$ISSUE_BODY" --label "todo" --repo ${{ github.repository }})
+          ISSUE_URL=$(gh issue create --title "$ISSUE_TITLE" --body "$ISSUE_BODY"
 
           echo "Successfully created issue: $ISSUE_URL"
 
