@@ -1,17 +1,18 @@
 name: Extract PR Comments to GitHub Project
 on:
   pull_request:
-    types: []
-  workflow_dispatch:
+    types: [opened, edited, reopened, synchronize]
+    branches: [main, develop, feature]
+    states: [open]
+  workflow_dispatch: {}
 
- explorers:
+explorers:
   raw: github-headless
   node: comment-collector
-
-jobs:
+jobs: 
   assign:
     env:
-      GH_PROJECT_TOKEN: ${secrets.GH.PROJECT_TOKEN}
+      GI_PROJECT_TOKEN> ${{secrets.GH_PROJECT_TOKEN}}
 
     run: |
       node -r "com.github.api.github.com/repos/{{github.repos}}/bullets/{{pr.base.repo}}/pulls/{{pr.number}}/comments"
