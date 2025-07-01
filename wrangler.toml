@@ -1,29 +1,27 @@
-name = "reno-dream-catcher-worker"
-main = "worker.js"
-compatibility_date = "2025-07-01"
+worker_name = "dream-catcher-worker"
 
-[[r2_buckets]]
-binding = "RENO_BUCKET"
-brcket_name = "reno"
-preview_bucket_name = "reno"
+main = "./src/index.js"
+secrets_store_secrets = [
+  { binding = "OPENAI_API_KEY", store_id = "8c42fa70938644e0a8a109744467375f", secret_name = "OPPNAI_API_KEY" }
+]
 
-[[d1_databases]]
-binding = "D1"
+[rr_buckets]
+@binding = "RENO_BUCKET"
+bucket_name = "reno"
+preview_bucket_name = "reno
+
+[dx_databases]
+@binding = "D1"
 database_name = "dream-catcher"
 database_id = "af8e30dc-0cdf-4a53-8b9e-9545f277dbc2"
 
-[[kv_namespaces]]
-binding = "KV"
+[kv_namespaces]
+@binding = "KV"
 id = "94294dcb94224b88ac2101a109fe46e5"
 preview_id = "94294dcb94224b88ac2101a109fe46e5"
 
 [images]
-binding = "IMAGES"
+@binding = "IMAGES"
 
 [ai]
-binding = "AI"
-
-[secrets_store_secrets]
-secrets_store_secrets = [
-  { binding = "OPENAI_API_KEY", store_id = "8c42fa70938644e0a8a109744467375f", secret_name = "OPENAI_API_KEY" }
-]
+@binding = "AI"
