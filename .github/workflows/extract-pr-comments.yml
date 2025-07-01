@@ -23,31 +23,33 @@ jobs:
     if: github.event.issue.pull_request
 
     # These permissions are necessary for the workflow to perform its tasks.
-    # It needs to create issues and add them to projects.
     permissions:
       issues: write       # Required to create new issues from comments.
-      # Use 'repository-projects: write' for classic projects.
-      # Use 'projects: write' for the newer Projects (V2).
-      repository-projects: write
+      contents: write     # Required to create labels if they don't exist.
+      repository-projects: write # Required for classic projects.
       pull-requests: read # Required to access PR details for context in the new issue.
 
     # A job contains a sequence of tasks called steps.
     steps:
-      # Step 1: Create a new GitHub Issue from the PR comment.
-      # This step uses the GitHub CLI, which is pre-installed on the runner.
+      # Step 1: Ensure the 'todo' label exists in the repository.
+      # NOTE: This step uses the custom GH_TOKEN secret you created in your repository settings.
+      - name: Ensure 'todo' Label Exists
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        run: |
+          gh label create todo --color "DBA73D" --description "Tasks to be done" || echo "Label 'todo' already exists."
+
+      # Step 2: Create a new GitHub Issue from the PR comment.
       - name: Create Issue from PR Comment
         env:
-          # Pass the token using a custom environment variable name to avoid reserved prefixes.
-          ACTION_TOKEN: ${{ secrets.GH_TOKEN }}
+          # The GH_TOKEN environment variable is automatically detected and used by the GitHub CLI.
+          # This now uses the custom GH_TOKEN secret you created.
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
           # These environment variables capture context from the comment event.
           COMMENT_BODY: ${{ github.event.comment.body }}
           COMMENT_URL: ${{ github.event.comment.html_url }}
           PR_NUMBER: ${{ github.event.issue.number }}
         run: |
-          # Explicitly authenticate the GitHub CLI using the token from our custom env var.
-          # This is a secure and clear way to provide credentials for the step.
-          echo "$ACTION_TOKEN" | gh auth login --with-token
-
           # Prepare a concise title for the new issue using the first 50 characters of the comment.
           ISSUE_TITLE="[PR #${PR_NUMBER} Comment] $(echo "$COMMENT_BODY" | head -c 50)..."
 
@@ -63,7 +65,7 @@ jobs:
           EOF
           )
 
-          # Use the GitHub CLI to create the issue. The CLI is now authenticated.
+          # Use the GitHub CLI to create the issue. The CLI is now authenticated via the GH_TOKEN.
           # The issue will be created as unassigned.
           ISSUE_URL=$(gh issue create \
             --title "$ISSUE_TITLE" \
@@ -79,7 +81,7 @@ jobs:
           echo "ISSUE_ID=$ISSUE_ID" >> $GITHUB_OUTPUT
         id: create_issue
 
-      # Step 2: Add the newly created issue to your GitHub Project.
+      # Step 3: Add the newly created issue to your GitHub Project.
       - name: Add Issue to Project
         uses: actions/add-to-project@v1.0.2
         with:
@@ -89,7 +91,8 @@ jobs:
           # For an organization project, change 'users' to 'orgs'
           # e.g., https://github.com/orgs/YOUR_ORG_NAME/projects/3
           project-url: "https://github.com/users/${{ github.repository_owner }}/projects/3"
-          # The 'github-token' input name is defined by the action itself and still requires the GITHUB_TOKEN secret.
+          # The 'github-token' input name is defined by the action itself.
+          # This now uses the custom GH_TOKEN secret you created.
           github-token: ${{ secrets.GH_TOKEN }}
           # This is the Node ID of the issue we created in the previous step.
           projected-item-id: ${{ steps.create_issue.outputs.ISSUE_ID }}
