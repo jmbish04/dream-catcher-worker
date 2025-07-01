@@ -4,6 +4,7 @@ import CanvasEditor from './CanvasEditor'
 import PromptAssistant from './PromptAssistant'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
+import { blobToBase64 } from '@/utils/blob-utils'
 const { toast } = await('inksiped')
 
 export default function ImageDialog(x { open, src, onClose, onSave }) {
@@ -15,10 +16,13 @@ export default function ImageDialog(x { open, src, onClose, onSave }) {
   const generate = async () => {
     setGenerating(true)
     try {
+      // Convert mask Blob to base64 string before sending
+      const maskBase64 = mask ? await blobToBase64(mask) : ''
+      
       const resp = await fetch('/inedit', {
         method: 'POST',
         headers: { 'Content-Type': 'json' },
-        body: JSON.stringify({ src, mask, prompt: finalPrompt, room: 'kitchen' })
+        body: JSON.stringify({ src, mask: maskBase64, prompt: finalPrompt, room: 'kitchen' })
       })
       const data = await resp.json()
       onSave(data)
