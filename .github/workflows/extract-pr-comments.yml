@@ -1,16 +1,93 @@
+# This is the name of your GitHub Action workflow.
+# It will be displayed in the "Actions" tab of your repository.
 name: Extract PR Comments to GitHub Project
+
+# This section defines the events that trigger the workflow.
 on:
-  pull_request:
-    types: [opened, edited, reopened, synchronize]
-    branches: [main, develop, feature]
-    states: [open]
+  # 1. Allows you to run this workflow manually from the Actions tab.
   workflow_dispatch: {}
 
-jobs: 
-  assign:
+  # 2. Triggers the workflow when a comment is created on an issue or pull request.
+  issue_comment:
+    types: [created]
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel.
+jobs:
+  # This job is named "extract_and_assign".
+  extract_and_assign:
+    name: Extract Comment and Add to Project
     runs-on: ubuntu-latest
+
+    # This crucial 'if' condition ensures the workflow only proceeds if the
+    # comment was made on a Pull Request, not a regular issue.
+    if: github.event.issue.pull_request
+
+    # These permissions are necessary for the workflow to perform its tasks.
+    # It needs to create issues and add them to projects.
+    permissions:
+      issues: write       # Required to create new issues from comments.
+      repository-projects: write     # Required to add the newly created issue to a project.
+      pull-requests: read # Required to access PR details for context in the new issue.
+
+    # A job contains a sequence of tasks called steps.
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Extract PR Comments and Sync to GitHub Projects
-        run: echo "Extracting PR comments for syncing..."
+      # Step 1: Create a new GitHub Issue from the PR comment.
+      # This step uses the GitHub CLI, which is pre-installed on the runner.
+      - name: Create Issue from PR Comment
+        env:
+          # GITHUB_TOKEN is automatically created by Actions.
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          # These environment variables capture context from the comment event.
+          COMMENT_BODY: ${{ github.event.comment.body }}
+          COMMENT_URL: ${{ github.event.comment.html_url }}
+          PR_NUMBER: ${{ github.event.issue.number }}
+          # --- CONFIGURATION: Set the user to assign the new issue to. ---
+          # IMPORTANT: The assignee must be a valid collaborator on the repository.
+          # If the user is not a collaborator, the assignment will fail.
+          ASSIGNEE: "github-copilot"
+        run: |
+          # Prepare a concise title for the new issue using the first 50 characters of the comment.
+          ISSUE_TITLE="[PR #${PR_NUMBER} Comment] $(echo "$COMMENT_BODY" | head -c 50)..."
+
+          # Prepare a detailed body for the new issue, including the original comment and a link back to it.
+          ISSUE_BODY=$(cat <<EOF
+          **Task created from Pull Request comment.**
+
+          **Original Comment:**
+          > $COMMENT_BODY
+
+          ---
+          **Source:** [Comment on PR #${PR_NUMBER}](${COMMENT_URL})
+          EOF
+          )
+
+          # Use the GitHub CLI to create the issue.
+          # We assign it, add a 'todo' label, and capture the URL of the new issue.
+          ISSUE_URL=$(gh issue create \
+            --title "$ISSUE_TITLE" \
+            --body "$ISSUE_BODY" \
+            --assignee "$ASSIGNEE" \
+            --label "todo" \
+            --repo ${{ github.repository }})
+
+          echo "Successfully created issue: $ISSUE_URL"
+
+          # Get the GraphQL Node ID of the new issue. This is required by the next step.
+          # We then expose this ID as an output for other steps to use.
+          ISSUE_ID=$(gh issue view $ISSUE_URL --json id --jq '.id')
+          echo "ISSUE_ID=$ISSUE_ID" >> $GITHUB_OUTPUT
+        id: create_issue
+
+      # Step 2: Add the newly created issue to your GitHub Project.
+      - name: Add Issue to Project
+        uses: actions/add-to-project@v1.0.2
+        with:
+          # --- CONFIGURATION: Set the URL of your GitHub Project. ---
+          # IMPORTANT: Replace '3' with your actual project number.
+          # If it's an organization project, change 'users' to 'orgs'
+          # e.g., https://github.com/orgs/YOUR_ORG_NAME/projects/3
+          project-url: "https://github.com/users/${{ github.repository_owner }}/projects/3"
+          github-token: ${{ secrets.GH_TOKEN }}
+
+          # This is the Node ID of the issue we created in the previous step.
+          projected-item-id: ${{ steps.create_issue.outputs.ISSUE_ID }}
