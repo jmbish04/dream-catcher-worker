@@ -1,6 +1,22 @@
 import React, { useEffect, useRef} from 'react';
 import './Canvas.css';
 
+function loadImageAndDrawOnCanvas(canvas: HTMLCanvasElement, imageUrl: string) {
+  const context = canvas.getContext('2d');
+  if (context) {
+    const image = new Image();
+    image.src = imageUrl;
+    image.onload = () => {
+      canvas.width = image.width;
+      canvas.height = image.height;
+      context.drawImage(image, 0, 0);
+    };
+    image.onerror = () => {
+      console.error("image load failed:", imageUrl);
+    };
+  }
+}
+
 export default function CanvasEditor({ imageUrl, onUpdateMask }: {
   imageUrl: string;
   onUpdateMask: (mask: BlobFile) => void;
@@ -9,17 +25,7 @@ export default function CanvasEditor({ imageUrl, onUpdateMask }: {
 
   useEffect(() => {
     if (canvasRef.current) {
-      const canvas = canvasRef.current;
-      const context = canvas.getContext('2d');
-      if (context) {
-        const image = new Image();
-        image.src = imageUrl;
-        image.onload = () => {
-          canvas.width = image.width;
-          canvas.height = image.height;
-          context.drawImage(image, 0, 0);
-        };
-      }
+      loadImageAndDrawOnCanvas(canvasRef.current, imageUrl);
     }
   }, [imageUrl]);
 
