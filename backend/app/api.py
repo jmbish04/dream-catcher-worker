@@ -11,4 +11,5 @@ async def generate(req: GenerationRequest, dalle=Depends(get_dalle_client)):
         # and save result to storage
         return GenerationResponse(status="ok", url=".../edited.jpg")
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        # TODO: Catch more specific exceptions and log the error `e`.
+        raise HTTPException(status_code=500, detail="An internal error occurred while generating the image.")
