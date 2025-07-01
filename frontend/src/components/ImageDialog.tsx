@@ -60,7 +60,10 @@ export default function ImageDialog({ open, src, onSave, onClose }: Props) {
         <PromptAssistant
           open={assistantOpen}
           onClose={() => setAssistantOpen(false)}
-          onUsePrompt={p => setFinalPrompt(p)}
+          onUsePrompt={p => {
+            setFinalPrompt(p);
+            setAssistantOpen(false);
+          }}
         />
       </DialogContent>
     </Dialog>
