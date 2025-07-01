@@ -25,9 +25,9 @@ jobs:
     # These permissions are necessary for the workflow to perform its tasks.
     permissions:
       issues: write       # Required to create new issues from comments.
-      contents: write     # Required to create labels if they don't exist.
       repository-projects: write # Required for classic projects.
       pull-requests: read # Required to access PR details for context in the new issue.
+      # contents: write is no longer needed as we are not creating labels.
 
     # A job contains a sequence of tasks called steps.
     steps:
@@ -62,8 +62,8 @@ jobs:
           EOF
           )
 
-          # Use the GitHub CLI to create the issue. This command is now on a single line for robustness.
-          ISSUE_URL=$(gh issue create --title "$ISSUE_TITLE" --body "$ISSUE_BODY"
+          # Use the GitHub CLI to create the issue. The issue will have no labels.
+          ISSUE_URL=$(gh issue create --title "$ISSUE_TITLE" --body "$ISSUE_BODY" --repo ${{ github.repository }})
 
           echo "Successfully created issue: $ISSUE_URL"
 
@@ -73,7 +73,7 @@ jobs:
           echo "ISSUE_ID=$ISSUE_ID" >> $GITHUB_OUTPUT
         id: create_issue
 
-      # Step 4: Add the newly created issue to your GitHub Project.
+      # Step 3: Add the newly created issue to your GitHub Project.
       - name: Add Issue to Project
         uses: actions/add-to-project@v1.0.2
         with:
