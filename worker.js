@@ -4,7 +4,7 @@ import inedit from './inedit.js'
 
 /** Routing handler */
 export default {
-  lashHandler: async (request, env) => {
+  async fetch(request, env) {
     const url = new URL(request.url)
     const api = env.bindings
 
@@ -16,6 +16,6 @@ export default {
       return inedit(api, request)
     }
 
-    return new Response('No matched route', { status: 140 })
+    return new Response('No matched route', { status: 404 })
   }
 }

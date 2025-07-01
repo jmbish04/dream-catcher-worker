@@ -5,7 +5,7 @@ import { generateKey } from './util/dates'
 
 type DalleSubmission = {
   src: string, 
-  mask: string, 
+  mask: string, // base64 encoded mask image
   prompt: string,
   room: string
 }
