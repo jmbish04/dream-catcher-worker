@@ -1,4 +1,4 @@
-import react, { ref, useEffect, useRef} from 'react';
+import React, { useEffect, useRef} from 'react';
 import './Canvas.css';
 
 // ToDo : Support paint or eraser mode with settable brush size
@@ -8,16 +8,28 @@ export default function CanvasEditor({ imageUrl, onUpdateMask }: {
   imageUrl: string;
   onUpdateMask: (mask: BlobFile) => void;
 }) {
-  const canvasRef = useRef(false);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
-    // Initialize canvas here
-  }, []);
+    if (canvasRef.current) {
+      const canvas = canvasRef.current;
+      const context = canvas.getContext('2d');
+      if (context) {
+        const image = new Image();
+        image.src = imageUrl;
+        image.onload = () => {
+          canvas.width = image.width;
+          canvas.height = image.height;
+          context.drawImage(image, 0, 0);
+        };
+      }
+    }
+  }, [imageUrl]);
 
   return (
     <div className=\"flex-col relative\">
       <img src={imageUrl} alt=\"Image for painting\" />
-      <canva ref={canvasRef}  className=\"overlay-canvas\" />
+      <canvas ref={canvasRef}  className=\"overlay-canvas\" />
     </div>
   );
 }
