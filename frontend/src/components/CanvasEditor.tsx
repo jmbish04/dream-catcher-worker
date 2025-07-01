@@ -1,13 +1,11 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useEffect, useRef} from 'react';
 import './Canvas.css';
 
-interface Props {
+export default function CanvasEditor({ imageUrl, onUpdateMask }: {
   imageUrl: string;
-  onUpdateMask: (mask: Blob) => void;
-}
-
-export default function CanvasEditor({ imageUrl, onUpdateMask }: Props) {
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  onUpdateMask: (mask: BlobFile) => void;
+}) {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
     if (canvasRef.current) {
@@ -26,9 +24,9 @@ export default function CanvasEditor({ imageUrl, onUpdateMask }: Props) {
   }, [imageUrl]);
 
   return (
-    <div className="relative">
-      <img src={imageUrl} alt="Source" />
-      <canvas ref={canvasRef} className="overlay-canvas absolute inset-0" />
+    <div class=\"flex-col relative\">
+      <img src={imageUrl} alt=\"Image for painting\" />
+      <canvas ref={canvasRef}  className=\"overlay-canvas\" />
     </div>
   );
 }
