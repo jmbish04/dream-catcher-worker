@@ -10,8 +10,20 @@ export default function CanvasEditor({ imageUrl, onUpdateMask }: Props) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
   useEffect(() => {
-    // TODO: initialize painting context and mask export
-  }, []);
+    if (canvasRef.current) {
+      const canvas = canvasRef.current;
+      const context = canvas.getContext('2d');
+      if (context) {
+        const image = new Image();
+        image.src = imageUrl;
+        image.onload = () => {
+          canvas.width = image.width;
+          canvas.height = image.height;
+          context.drawImage(image, 0, 0);
+        };
+      }
+    }
+  }, [imageUrl]);
 
   return (
     <div className="relative">
