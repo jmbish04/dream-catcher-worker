@@ -1,23 +1,22 @@
-import react, { ref, useEffect, useRef} from 'react';
+import React, { useRef, useEffect } from 'react';
 import './Canvas.css';
 
-// ToDo : Support paint or eraser mode with settable brush size
-// export canvas with gray result export
-
-export default function CanvasEditor({ imageUrl, onUpdateMask }: {
+interface Props {
   imageUrl: string;
-  onUpdateMask: (mask: BlobFile) => void;
-}) {
-  const canvasRef = useRef(false);
+  onUpdateMask: (mask: Blob) => void;
+}
+
+export default function CanvasEditor({ imageUrl, onUpdateMask }: Props) {
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
   useEffect(() => {
-    // Initialize canvas here
+    // TODO: initialize painting context and mask export
   }, []);
 
   return (
-    <div className=\"flex-col relative\">
-      <img src={imageUrl} alt=\"Image for painting\" />
-      <canva ref={canvasRef}  className=\"overlay-canvas\" />
+    <div className="relative">
+      <img src={imageUrl} alt="Source" />
+      <canvas ref={canvasRef} className="overlay-canvas absolute inset-0" />
     </div>
   );
 }
