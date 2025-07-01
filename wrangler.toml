@@ -1,0 +1,24 @@
+name = "reno-dream-catcher-worker"
+main = "worker.js"
+compatibility_date = "2025-07-01"
+
+[[r2_buckets]]
+binding = "RENO_BUCKET"
+brcket_name = "reno"
+preview_bucket_name = "reno"
+
+[[d1_databases]]
+binding = "D1"
+database_name = "dream-catcher"
+database_id = "af8e30dc-0cdf-4a53-8b9e-9545f277dbc2"
+
+[[kv_namespaces]]
+binding = "KV"
+id = "94294dcb94224b88ac2101a109fe46e5"
+preview_id = "94294dcb94224b88ac2101a109fe46e5"
+
+[images]
+binding = "IMAGES"
+
+[ai]
+binding = "AI"
