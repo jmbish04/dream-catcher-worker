@@ -33,11 +33,11 @@ jobs:
     steps:
       # Step 1: Ensure the 'todo' label exists in the repository.
       # NOTE: This step uses the custom GH_TOKEN secret you created in your repository settings.
-      - name: Ensure 'todo' Label Exists
-        env:
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
-        run: |
-          gh label create todo --color "DBA73D" --description "Tasks to be done" || echo "Label 'todo' already exists."
+      # - name: Ensure 'todo' Label Exists
+      #   env:
+      #     GH_TOKEN: ${{ secrets.GH_TOKEN }}
+      #   run: |
+      #     gh label create todo --color "DBA73D" --description "Tasks to be done" || echo "Label 'todo' already exists."
 
       # Step 2: Create a new GitHub Issue from the PR comment.
       - name: Create Issue from PR Comment
@@ -70,7 +70,7 @@ jobs:
           ISSUE_URL=$(gh issue create \
             --title "$ISSUE_TITLE" \
             --body "$ISSUE_BODY" \
-            --label "todo" \
+            # --label "todo" \
             --repo ${{ github.repository }})
 
           echo "Successfully created issue: $ISSUE_URL"
