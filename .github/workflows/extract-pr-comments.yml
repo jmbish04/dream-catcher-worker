@@ -6,23 +6,11 @@ on:
     states: [open]
   workflow_dispatch: {}
 
-explorers:
-  raw: github-headless
-  node: comment-collector
 jobs: 
   assign:
-    env:
-      GI_PROJECT_TOKEN> ${{secrets.GH_PROJECT_TOKEN}}
-
-    run: |
-      node -r "com.github.api.github.com/repos/{{github.repos}}/bullets/{{pr.base.repo}}/pulls/{{pr.number}}/comments"
-      check-step-exit-code: true
-      with: default
-      timeout: 100
-      id: response
-        continue-on-error: true
-        with-check-status: true
-        with-check-step-success: true
+    runs-on: ubuntu-latest
     steps:
-      - name: Retrieve and log comments
-        run: echo "Extracting comments for the Project board"
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Extract PR Comments and Sync to GitHub Projects
+        run: echo "Extracting PR comments for syncing..."
