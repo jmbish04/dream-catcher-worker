@@ -31,7 +31,12 @@ jobs:
 
     # A job contains a sequence of tasks called steps.
     steps:
-      # Step 1: Ensure the 'todo' label exists in the repository.
+      # Step 1: Check out the repository code.
+      # This step is crucial for providing git context to other tools like the GitHub CLI.
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      # Step 2: Ensure the 'todo' label exists in the repository.
       # NOTE: This step uses the custom GH_TOKEN secret you created in your repository settings.
       # - name: Ensure 'todo' Label Exists
       #   env:
@@ -39,7 +44,7 @@ jobs:
       #   run: |
       #     gh label create todo --color "DBA73D" --description "Tasks to be done" || echo "Label 'todo' already exists."
 
-      # Step 2: Create a new GitHub Issue from the PR comment.
+      # Step 3: Create a new GitHub Issue from the PR comment.
       - name: Create Issue from PR Comment
         env:
           # The GH_TOKEN environment variable is automatically detected and used by the GitHub CLI.
@@ -65,13 +70,8 @@ jobs:
           EOF
           )
 
-          # Use the GitHub CLI to create the issue. The CLI is now authenticated via the GH_TOKEN.
-          # The issue will be created as unassigned.
-          ISSUE_URL=$(gh issue create \
-            --title "$ISSUE_TITLE" \
-            --body "$ISSUE_BODY" \
-            # --label "todo" \
-            --repo ${{ github.repository }})
+          # Use the GitHub CLI to create the issue. This command is now on a single line for robustness.
+          ISSUE_URL=$(gh issue create --title "$ISSUE_TITLE" --body "$ISSUE_BODY" --label "todo" --repo ${{ github.repository }})
 
           echo "Successfully created issue: $ISSUE_URL"
 
@@ -81,7 +81,7 @@ jobs:
           echo "ISSUE_ID=$ISSUE_ID" >> $GITHUB_OUTPUT
         id: create_issue
 
-      # Step 3: Add the newly created issue to your GitHub Project.
+      # Step 4: Add the newly created issue to your GitHub Project.
       - name: Add Issue to Project
         uses: actions/add-to-project@v1.0.2
         with:
