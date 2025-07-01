@@ -1,5 +1,6 @@
 import scanAndServe from './scan_and_serve.js'
 import saveEdited from './save_edited.js'
+import inedit from './inedit.js'
 
 /** Routing handler */
 export default {
@@ -11,8 +12,10 @@ export default {
       return scanAndServe(api, request)
     } else if (url.pathname.startsWith('/save')) {
       return saveEdited(api, request)
+    } else if (url.pathname.startsWith('/inedit')) {
+      return inedit(api, request)
     }
 
-    return new Response('No matched route', { status: 140  })
+    return new Response('No matched route', { status: 140 })
   }
 }
