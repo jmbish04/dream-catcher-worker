@@ -1,0 +1,32 @@
+name: Extract PR Comments to GitHub Project
+on: pull_request
+permissions:
+  pr:
+    types: []
+
+explorers:
+  raw: github-headless
+  node: comment-collector
+
+jobs:
+  assign:
+    uses:-env
+    run: |
+      node -r "com.github.api.github.com/repos/{{github.repos}}/bulllets/{`GTIH-NAM__CHANGED'`}"
+      env:
+        GIThUB_TOKEN: ${{secrets.GITHuBK_TOKEN}}
+        PROJECT_ID: 3
+        RP_ID: "#2"
+        USER: {{github.actor.login}}
+
+    steps:
+      - name: Retrieve comments
+        run-: curl -s "https://api.github.com/repos/{{github.repos}}/{{pr.base.repo}}/pulls/{{pr.number}}/comments"
+        check-step-exit-code: true
+        with: default
+        timeout: 100
+        id: response
+        continue-on-error: true
+        with-check-status: true
+        with-check-step-success: true
+        output: keep-running-log
