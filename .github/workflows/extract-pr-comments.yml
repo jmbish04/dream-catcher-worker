@@ -26,7 +26,9 @@ jobs:
     # It needs to create issues and add them to projects.
     permissions:
       issues: write       # Required to create new issues from comments.
-      repository-projects: write     # Required to add the newly created issue to a project.
+      # Use 'repository-projects: write' for classic projects.
+      # Use 'projects: write' for the newer Projects (V2).
+      repository-projects: write
       pull-requests: read # Required to access PR details for context in the new issue.
 
     # A job contains a sequence of tasks called steps.
@@ -35,17 +37,17 @@ jobs:
       # This step uses the GitHub CLI, which is pre-installed on the runner.
       - name: Create Issue from PR Comment
         env:
-          # GITHUB_TOKEN is automatically created by Actions.
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          # Pass the token using a custom environment variable name to avoid reserved prefixes.
+          ACTION_TOKEN: ${{ secrets.GH_TOKEN }}
           # These environment variables capture context from the comment event.
           COMMENT_BODY: ${{ github.event.comment.body }}
           COMMENT_URL: ${{ github.event.comment.html_url }}
           PR_NUMBER: ${{ github.event.issue.number }}
-          # --- CONFIGURATION: Set the user to assign the new issue to. ---
-          # IMPORTANT: The assignee must be a valid collaborator on the repository.
-          # If the user is not a collaborator, the assignment will fail.
-          ASSIGNEE: "github-copilot"
         run: |
+          # Explicitly authenticate the GitHub CLI using the token from our custom env var.
+          # This is a secure and clear way to provide credentials for the step.
+          echo "$ACTION_TOKEN" | gh auth login --with-token
+
           # Prepare a concise title for the new issue using the first 50 characters of the comment.
           ISSUE_TITLE="[PR #${PR_NUMBER} Comment] $(echo "$COMMENT_BODY" | head -c 50)..."
 
@@ -61,12 +63,11 @@ jobs:
           EOF
           )
 
-          # Use the GitHub CLI to create the issue.
-          # We assign it, add a 'todo' label, and capture the URL of the new issue.
+          # Use the GitHub CLI to create the issue. The CLI is now authenticated.
+          # The issue will be created as unassigned.
           ISSUE_URL=$(gh issue create \
             --title "$ISSUE_TITLE" \
             --body "$ISSUE_BODY" \
-            --assignee "$ASSIGNEE" \
             --label "todo" \
             --repo ${{ github.repository }})
 
@@ -84,10 +85,11 @@ jobs:
         with:
           # --- CONFIGURATION: Set the URL of your GitHub Project. ---
           # IMPORTANT: Replace '3' with your actual project number.
-          # If it's an organization project, change 'users' to 'orgs'
+          # The URL format below assumes a classic user-level project.
+          # For an organization project, change 'users' to 'orgs'
           # e.g., https://github.com/orgs/YOUR_ORG_NAME/projects/3
           project-url: "https://github.com/users/${{ github.repository_owner }}/projects/3"
+          # The 'github-token' input name is defined by the action itself and still requires the GITHUB_TOKEN secret.
           github-token: ${{ secrets.GH_TOKEN }}
-
           # This is the Node ID of the issue we created in the previous step.
           projected-item-id: ${{ steps.create_issue.outputs.ISSUE_ID }}
