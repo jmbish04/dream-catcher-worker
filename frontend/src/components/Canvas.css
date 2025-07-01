@@ -1,0 +1,17 @@
+.overlay-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  cursor: crosshair;
+  opacity: 0.5;
+  pointer-events: auto;
+}
+
+.flex-col {
+  display: flex;
+  flex-direction: column;
+}
+
+.relative {
+  position: relative;
+}
