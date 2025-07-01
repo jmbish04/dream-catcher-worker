@@ -3,15 +3,13 @@
 name: Extract PR Comments to GitHub Project
 
 # This section defines the events that trigger the workflow.
+# This workflow is now purely event-driven and will trigger on new comments.
 on:
-  # 1. Allows you to run this workflow manually from the Actions tab.
-  workflow_dispatch: {}
-
-  # 2. Triggers the workflow when a general comment is created on a pull request.
+  # 1. Triggers the workflow when a general comment is created on a pull request.
   issue_comment:
     types: [created]
   
-  # 3. Triggers the workflow when a comment is made on a specific line of code during a review.
+  # 2. Triggers the workflow when a comment is made on a specific line of code during a review.
   pull_request_review_comment:
     types: [created]
 
