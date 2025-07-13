@@ -4,9 +4,17 @@ import inedit from './inedit.js'
 
 /** Routing handler */
 export default {
-  lashHandler: async (request, env) => {
+  async fetch(request, env, ctx) {
     const url = new URL(request.url)
-    const api = env.bindings
+    
+    // Create API object with environment bindings
+    const api = {
+      RENO_BUCKET: env.RENO_BUCKET,
+      RENO_BUCKET_URL: env.RENO_BUCKET_URL,
+      D1: env.D1,
+      AI: env.AI,
+      OPENAI_API_KEY: env.OPENAI_API_KEY
+    }
 
     if (url.pathname.startsWith('/scan')) {
       return scanAndServe(api, request)
@@ -16,6 +24,6 @@ export default {
       return inedit(api, request)
     }
 
-    return new Response('No matched route', { status: 140 })
+    return new Response('No matched route', { status: 404 })
   }
 }
