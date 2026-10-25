@@ -16,7 +16,7 @@ jobs:
   # This job is named "extract_and_assign".
   extract_and_assign:
     name: Extract Comment and Add to Project
-    runs-on: ${{ github.event.pull_request.head.repo.full_name && github.event.pull_request.head.repo.full_name != github.repository && 'ubuntu-latest' || fromJSON('["self-hosted","Linux","X64","proxmox-actions"]') }}
+    runs-on: ${{ vars.CI_RUNNER && fromJSON(vars.CI_RUNNER) || 'ubuntu-latest' }}
 
     # This crucial 'if' condition ensures the workflow only proceeds if the
     # comment was made on a Pull Request, not a regular issue.
